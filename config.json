@@ -1,0 +1,11 @@
+{
+    "anty-key": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTM4MTE2NCwidXNlcm5hbWUiOiJsaWxmb3JrYWx0QGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsInRlYW1JZCI6MTMzMzM3NywidG9rZW5DcmVhdGVkQXQiOjE2Nzk4NTgzNTJ9.ICk0mceVbt2dthgfL80Vm2nxUePcMNYR4i7UM1_3VQ4",
+    "captcha-key": "lilfork-9ce05880-57e9-af18-124c-bfb48d65434a",
+    "captcha-type": "pro",
+
+    "proxyless": false,
+
+    "avatar": true,
+    "hypesquad": true,
+    "bio": true
+}
