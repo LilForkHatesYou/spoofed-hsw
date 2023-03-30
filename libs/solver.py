@@ -3,7 +3,7 @@ import json, time, numpy as np
 import base64, requests, re
 import json, hashlib, random
 #from eazyui import *
-from libs.eazyui import *
+from lib.eazyui import *
 from playwright.async_api import async_playwright
 from datetime import datetime
 
@@ -45,7 +45,7 @@ class Anty():
             "webglInfo": {
                 "mode": "manual",
                 "vendor": "Google Inc. (NVIDIA Corporation)",
-                "renderer": "ANGLE (NVIDIA Corporation, GeForce RTX 3070/PCIe/SSE2, OpenGL 4.5.0 NVIDIA 461.40)"
+                "renderer": "ANGLE (Intel(R) UHD Graphics 600 Direct3D11 vs_5_0 ps_5_0)"
             },
             "geolocation": {
                 "mode": "auto",
@@ -121,7 +121,7 @@ class Browser():
 
 
     async def gotoDiscord(self) -> None:
-        await self.page.goto('http://217.160.55.155/hcatpcha/')
+        await self.page.goto('https://accounts.hcaptcha.com/demo?sitekey=4c672d35-0701-42b2-88c3-78380b0db560')
         await self.page.wait_for_load_state('domcontentloaded')
     
     async def getIframHsw(self) -> None:
@@ -140,7 +140,7 @@ class Browser():
                     if not exectued:
                         await frame.evaluate('document.querySelector("#checkbox").click()')
                         exectued = True
-                    await frame.evaluate("hsw('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmIjowLCJzIjoyLCJ0IjoidyIsImQiOiJxTENNcU9CUVBEbjZkMXlvYU5VMlE0M1RvTm5FM0JMeHVnZlZ2TksyYjhLSkhkMTN4SlhRN2ExVFVBU2Zncm5Pc3dyM05JKytCRndzV0MveUdaWXdtRG1LM3BKZEp4bGlmazhjYnNnNmE5MXdTSVVTbngrVTVuV3pUUTRTZjVCditjYjNGYWIwTVFDOGp1QjdNMndQQ1lvM3VSbXgzai9OTU5zSFh1RnVYeVZVRUFoSzJTMHpOb1dYSWc9PSt4eHhuUFg5OFIvaUx1Z1UiLCJsIjoiaHR0cHM6Ly9uZXdhc3NldHMuaGNhcHRjaGEuY29tL2MvNmZkZDJmMyIsImUiOjE2Nzc1ODQ0NDIsIm4iOiJoc3ciLCJjIjoxMDAwfQ.kNESZLSiytt-e7taHkmsGopAdeI1-fc1d9WP-amSkBc')")
+                    await frame.evaluate(f"hsw('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmIjowLCJzIjoyLCJ0IjoidyIsImQiOiJNT3ZsSE1qUHd2dTJ6Z0VhYTJGbXlUY3B2RnFHai9mdHk3L091NW1EV2dlOGFPM0oxOTJPUGVSRVRHb0V1UEJEOVAva0Jmb1JQUzExc3ZLMVVBTFBTU3VlYmFWbkpacEZib3AzOTRwQWdnM1M1Zk1WRmhyTzRwSW5qRzdLQWVFRkxYaVlUSDVqOVJxUjdFMWtuMCtDeVd5cnBEeWswK3d1b05kRjBMMUpkVnY2MzhGdERYbmJQT1NZUHc9PStTb2hQNnVrWHVwTGcwcHQiLCJsIjoiaHR0cHM6Ly9uZXdhc3NldHMuaGNhcHRjaGEuY29tL2MvNmZkZDJmMyIsImUiOjE2ODAwNTA3OTcsIm4iOiJoc3ciLCJjIjoxMDAwfQ.cj8oMVTJ5ATmEg1fEj3x0m3-4ARmmwEB9k0XXUKXUKM')")
                     self.frame = frame
                     found = True
                 except Exception:
