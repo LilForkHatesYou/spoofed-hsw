@@ -48,7 +48,7 @@ class Discord():
             "os": "Windows",
             "browser": "Chrome",
             "device": "",
-            "system_locale": "fr-FR",
+            "system_locale": "en-US",
             "browser_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
             "browser_version": "111.0.0.0",
             "os_version": "10",
@@ -69,13 +69,13 @@ class Discord():
             "referer": f"https://discord.com/channels/@me/{ideaa}",
             "content-type": "application/json",
             "x-debug-options": "bugReporterEnabled",
-            "x-discord-locale": "fr-FR",
+            "x-discord-locale": "en-US",
             "x-fingerprint": self.fingerprint,
             "x-super-properties": "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImZyLUJFIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExMS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTExLjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjk5OTksImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGx9",
             "authorization": token,
             "Accept": "*/*",
             "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "fr-FR,fr;q=0.7",
+            "Accept-Language": "en-US,en;q=0.7",
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Site": "none",
@@ -108,7 +108,7 @@ class Discord():
         self.session.headers =  {
             'authority': 'discord.com',
             'accept': '*/*',
-            'accept-language': 'fr-BE,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+            'accept-language': 'en-US,en;q=0.9,en-US;q=0.8,en;q=0.7',
             'content-type': 'application/json',
             'origin': 'https://discord.com',
             'referer': 'https://discord.com/',
@@ -136,9 +136,6 @@ class Discord():
             return None
         return response.json()['token']
 
-    def isLocked(self) -> bool:
-        return self.session.get('https://discord.com/api/v9/users/@me/affinities/users') == 403
-
     def generate(self) -> None:
         global total
         global locked
@@ -150,7 +147,7 @@ class Discord():
         self.session.headers = {
             'authority': 'discord.com',
             'accept': '*/*',
-            'accept-language': 'fr-FR,fr;q=0.9',
+            'accept-language': 'en-US,fr;q=0.9',
             'cookie': 'locale=fr',
             'referer': 'https://discord.com/',
             'sec-fetch-dest': 'empty',
@@ -173,7 +170,7 @@ class Discord():
             'x-debug-options': 'bugReporterEnabled',
             'authorization': token
         })
-        if self.isLocked():
+        if self.session.get('https://discord.com/api/v9/users/@me/affinities/users').status_code == 403:
             total += 1
             locked += 1
             print(f"({Fore.RED}-{Style.RESET_ALL}) - Locked [{token[:30]}*************************]")
@@ -207,8 +204,7 @@ class Discord():
             }
         }))
         added = ""
-        json_data = {'date_of_birth': '2000-12-19',}
-        json_data['avatar']  = 'data:image/png;base64,' + base64.b64encode(open(os.path.join("input/image", random.choice([f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])), 'rb').read()).decode('utf-8')    
+        json_data = {'date_of_birth': '2000-12-19', 'avatar': 'data:image/png;base64,' + base64.b64encode(open(os.path.join("input/image", random.choice([f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])), 'rb').read()).decode('utf-8')}
         added += "Avatar, "
         response = self.session.patch('https://discord.com/api/v9/users/@me', json=json_data)
         if response.status_code == 200:
