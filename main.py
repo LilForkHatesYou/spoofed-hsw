@@ -127,7 +127,8 @@ class Discord():
                 'consent': True,
                 'fingerprint': fingerprint,
                 'username': random.choice(names),
-                'captcha_key': captchaKey
+                'captcha_key': captchaKey,
+                'invite': invite
             }
         )
         if not 'token' in response.json():
@@ -250,6 +251,7 @@ if __name__ == "__main__":
     for _ in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Browsers → '))): thread = threading.Thread(target=setupBrowser); thread.start(); threadList.append(thread)
     for t in threadList: t.join()
     #ideaa = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - User ID → '))
+    invite = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Invite (Leave Blank For None) → '))
     for i in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Threads → '))):
         threading.Thread(target=generate).start()
     threading.Thread(target=updateTitle).start()

@@ -203,5 +203,5 @@ class Solver():
             #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
             pass
         else:
-            print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solved Sucessfully In {round(time.time()-startedAs,2)}s: [{captchaKey[:30]}]")
+            #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solved Sucessfully In {round(time.time()-startedAs,2)}s: [{captchaKey[:30]}]")
             return captchaKey

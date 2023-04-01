@@ -1,7 +1,6 @@
 import httpx, time, random, json, threading
 from colorama import Fore, Style
 from colored import fg
-from libs.eazyui import *
 def spam():
     try:
         ja = random.choice(open('tokens.txt', "r", encoding="utf-8").read().splitlines())
@@ -97,12 +96,10 @@ def capter():
         pass
 
 if __name__ == "__main__":
-    Console.clear()
    # print(Colorate.Diagonal(Colors.purple_to_red, Center.XCenter(Ascii.get('Nigga Spam', AsciiType.DOH))))
     message = input(f"({fg('magenta')}+{Style.RESET_ALL}) Message → ")
     channel = input(f"({fg('magenta')}+{Style.RESET_ALL}) Channel ID → ")
     threads = input(f"({fg('magenta')}+{Style.RESET_ALL}) Threads → ")
     print(f"({fg('magenta')}+{Style.RESET_ALL}) Starting...")
-    Console.clear()
     for _ in range(int(threads)):
         threading.Thread(target=spam).start()
