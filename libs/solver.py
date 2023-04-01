@@ -5,15 +5,12 @@ from datetime import datetime
 
 __CONFIG__ = json.loads(open("config.json").read())
 authToken = __CONFIG__["anty-key"]
-
 class Anty():
     def __init__(self) -> None:
         self.session = requests.Session()
-    
+
     def login(self) -> None:
-        self.session.headers.update({
-            'Authorization': 'Bearer ' + authToken
-        })
+        self.session.headers.update({'Authorization': 'Bearer ' + authToken})
     
     def create_profile_and_send_id(self):
         payload = json.dumps({
@@ -120,35 +117,13 @@ class Browser():
                     found = True
                 except Exception:
                     pass
+        print(f"({Fore.MAGENTA}${Fore.RESET}) - Grabbed/Spoofed Hsw")
         #Output.good("Grabbed HSW")
-
-class Logger():
-    def __init__(self, debug:bool) -> None:
-        self.isDebug = debug
-    def debug(self, text:str):
-        if self.isDebug: print(f'[{Fore.MAGENTA}~{Fore.RESET}] {text}')
-    def success(self, text:str):
-        pass
-    def error(self, text:str):
-        pass
 
 class Solver():
     def __init__(self, siteKey:str, siteUrl:str, browser:Browser,session:tls_client.Session, debug:bool=False) -> None:
-        self.logger = Logger(debug)
         self.client =  session
-        self.client.headers = {
-            'authority': 'hcaptcha.com',
-            'accept': 'application/json',
-            'accept-language': 'fr-FR,fr;q=0.9',
-            'content-type': 'text/plain',
-            'origin': 'https://newassets.hcaptcha.com',
-            'referer': 'https://newassets.hcaptcha.com/',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
-            'sec-gpc': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-        }
+        self.client.headers = {'authority': 'hcaptcha.com','accept': 'application/json','accept-language': 'fr-FR,fr;q=0.9','content-type': 'text/plain','origin': 'https://newassets.hcaptcha.com','referer': 'https://newassets.hcaptcha.com/','sec-fetch-dest': 'empty','sec-fetch-mode': 'cors','sec-fetch-site': 'same-site','sec-gpc': '1','user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',}
         self.apiKey = __CONFIG__["captcha-key"]
         self.browser = browser
         self.version = re.findall(r'v1\/([A-Za-z0-9]+)\/static', self.client.get('https://hcaptcha.com/1/api.js?render=explicit&onload=hcaptchaOnLoad').text)[1]
@@ -189,30 +164,15 @@ class Solver():
                     imgB64 = {str(i): base64.b64encode(requests.get(str(img["datapoint_uri"]), headers=self.client.headers).content).decode('utf-8') for i, img in enumerate(self.taskList)}
                     task = requests.post(f'https://{__CONFIG__["captcha-type"]}.nocaptchaai.com/solve', headers={'Content-type': 'application/json','apikey': self.apiKey},json={'images': imgB64,'target': self.question,'method': 'hcaptcha_base64','sitekey': self.siteKey,'site': self.siteUrl})
                     self.solArray = task.json()['solution']
-                    self.logger.debug(f'Solution: {self.solArray} - {round(time.time()-start,2)}s')
+                    #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solution: {self.solArray} - {round(time.time()-start,2)}s")
                     resp = [i in self.solArray for i in range(len(self.taskList))]
                     return {task['task_key']: str(resp).lower() for task, resp in zip(self.taskList, resp)}
                 except Exception as e:
                     print(e)
     
     def postAnswers(self) -> str:
-        self.client.headers = {
-            'authority': 'hcaptcha.com',
-            'accept': '*/*',
-            'accept-language': 'fr-FR,fr;q=0.9',
-            'content-type': 'application/json;charset=UTF-8',
-            'origin': 'https://newassets.hcaptcha.com',
-            'referer': 'https://newassets.hcaptcha.com/',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
-            'sec-gpc': '1',
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
-        }
-        
-        response = self.client.post(
-            f'https://hcaptcha.com/checkcaptcha/{self.siteKey}/{self.key}',
-            json={'v': self.version,'job_mode': 'image_label_binary','answers': self.solution,'serverdomain': self.siteUrl,'sitekey': self.siteKey,"motionData": '{"st":1672758607913,"dct":1672758607913,"mm":mmdata,"mm-mp":4.306643952299827,"md":[[351,172,1672758611263],[93,302,1672758612354],[58,166,1672758614414],[80,454,1672758614980],[343,565,1672758615747]],"md-mp":1121,"mu":[[351,172,1672758611356],[93,302,1672758612470],[58,166,1672758614516],[80,454,1672758615042],[343,565,1672758615868]],"mu-mp":1128,"topLevel":{"st":1672758606002,"sc":{"availWidth":1920,"availHeight":1040,"width":1920,"height":1080,"colorDepth":24,"pixelDepth":24,"availLeft":2560,"availTop":360,"onchange":null,"isExtended":true},"nv":{"vendorSub":"","productSub":"20030107","vendor":"Google Inc.","maxTouchPoints":0,"scheduling":{},"userActivation":{},"doNotTrack":null,"geolocation":{},"connection":{},"pdfViewerEnabled":true,"webkitTemporaryStorage":{},"hardwareConcurrency":12,"cookieEnabled":true,"appCodeName":"Mozilla","appName":"Netscape","appVersion":"5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","platform":"Win32","product":"Gecko","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","language":"fr-FR","languages":["fr-FR","fr","en-US","en"],"onLine":true,"webdriver":false,"bluetooth":{},"clipboard":{},"credentials":{},"keyboard":{},"managed":{},"mediaDevices":{},"storage":{},"serviceWorker":{},"virtualKeyboard":{},"wakeLock":{},"deviceMemory":8,"ink":{},"hid":{},"locks":{},"mediaCapabilities":{},"mediaSession":{},"permissions":{},"presentation":{},"serial":{},"usb":{},"windowControlsOverlay":{},"xr":{},"userAgentData":{"brands":[{"brand":"Not?A_Brand","version":"8"},{"brand":"Chromium","version":"108"},{"brand":"Google Chrome","version":"108"}],"mobile":false,"platform":"Windows"},"plugins":["internal-pdf-viewer","internal-pdf-viewer","internal-pdf-viewer","internal-pdf-viewer","internal-pdf-viewer"]},"dr":"","inv":false,"exec":false,"wn":[[880,924,1,1672758606002]],"wn-mp":0,"xy":[[0,0,1,1672758606003]],"xy-mp":0,"mm":[[879,684,1672758606557],[803,680,1672758606573],[727,674,1672758606589],[660,670,1672758606605],[607,666,1672758606621],[567,661,1672758606637],[541,656,1672758606653],[525,653,1672758606669],[513,651,1672758606687],[501,650,1672758606703],[489,648,1672758606719],[477,648,1672758606735],[463,647,1672758606752],[449,646,1672758606768],[438,644,1672758606784],[427,643,1672758606801],[415,641,1672758606818],[402,640,1672758606835],[387,639,1672758606853],[373,637,1672758606869],[361,635,1672758606885],[345,634,1672758606902],[327,632,1672758606919],[311,629,1672758606935],[298,627,1672758606952],[286,625,1672758606969],[272,622,1672758606986],[260,618,1672758607002],[251,615,1672758607020],[243,611,1672758607037],[230,603,1672758607053],[209,591,1672758607069],[186,576,1672758607085],[168,562,1672758607101],[154,550,1672758607118],[143,536,1672758607134],[125,496,1672758608067],[96,458,1672758614148],[96,419,1672758614164],[407,789,1672758615149],[443,809,1672758615165],[461,820,1672758615182],[470,824,1672758615198],[478,825,1672758615216],[489,826,1672758615232],[501,827,1672758615248],[512,828,1672758615265],[518,827,1672758615282],[520,826,1672758615339],[520,825,1672758615358],[518,822,1672758615376],[517,818,1672758615393],[515,817,1672758615410],[512,814,1672758615429],[507,810,1672758615446],[501,805,1672758615463],[497,802,1672758615479],[494,800,1672758615496],[490,797,1672758615513],[484,793,1672758615530],[477,790,1672758615546]],"mm-mp":13.799079754601225},"v":1}'.replace("1672758", str(round(datetime.now().timestamp()))[:7]).replace('mmdata', str(self.mouse_movement())),'n': self.hsw,'c': json.dumps(self.proofData)},)       
+        self.client.headers = {'authority': 'hcaptcha.com','accept': '*/*','accept-language': 'fr-FR,fr;q=0.9','content-type': 'application/json;charset=UTF-8','origin': 'https://newassets.hcaptcha.com','referer': 'https://newassets.hcaptcha.com/','sec-fetch-dest': 'empty','sec-fetch-mode': 'cors','sec-fetch-site': 'same-site','sec-gpc': '1',"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"}
+        response = self.client.post(f'https://hcaptcha.com/checkcaptcha/{self.siteKey}/{self.key}',json={'v': self.version,'job_mode': 'image_label_binary','answers': self.solution,'serverdomain': self.siteUrl,'sitekey': self.siteKey,"motionData": '{"st":1672758607913,"dct":1672758607913,"mm":mmdata,"mm-mp":4.306643952299827,"md":[[351,172,1672758611263],[93,302,1672758612354],[58,166,1672758614414],[80,454,1672758614980],[343,565,1672758615747]],"md-mp":1121,"mu":[[351,172,1672758611356],[93,302,1672758612470],[58,166,1672758614516],[80,454,1672758615042],[343,565,1672758615868]],"mu-mp":1128,"topLevel":{"st":1672758606002,"sc":{"availWidth":1920,"availHeight":1040,"width":1920,"height":1080,"colorDepth":24,"pixelDepth":24,"availLeft":2560,"availTop":360,"onchange":null,"isExtended":true},"nv":{"vendorSub":"","productSub":"20030107","vendor":"Google Inc.","maxTouchPoints":0,"scheduling":{},"userActivation":{},"doNotTrack":null,"geolocation":{},"connection":{},"pdfViewerEnabled":true,"webkitTemporaryStorage":{},"hardwareConcurrency":12,"cookieEnabled":true,"appCodeName":"Mozilla","appName":"Netscape","appVersion":"5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","platform":"Win32","product":"Gecko","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","language":"fr-FR","languages":["fr-FR","fr","en-US","en"],"onLine":true,"webdriver":false,"bluetooth":{},"clipboard":{},"credentials":{},"keyboard":{},"managed":{},"mediaDevices":{},"storage":{},"serviceWorker":{},"virtualKeyboard":{},"wakeLock":{},"deviceMemory":8,"ink":{},"hid":{},"locks":{},"mediaCapabilities":{},"mediaSession":{},"permissions":{},"presentation":{},"serial":{},"usb":{},"windowControlsOverlay":{},"xr":{},"userAgentData":{"brands":[{"brand":"Not?A_Brand","version":"8"},{"brand":"Chromium","version":"108"},{"brand":"Google Chrome","version":"108"}],"mobile":false,"platform":"Windows"},"plugins":["internal-pdf-viewer","internal-pdf-viewer","internal-pdf-viewer","internal-pdf-viewer","internal-pdf-viewer"]},"dr":"","inv":false,"exec":false,"wn":[[880,924,1,1672758606002]],"wn-mp":0,"xy":[[0,0,1,1672758606003]],"xy-mp":0,"mm":[[879,684,1672758606557],[803,680,1672758606573],[727,674,1672758606589],[660,670,1672758606605],[607,666,1672758606621],[567,661,1672758606637],[541,656,1672758606653],[525,653,1672758606669],[513,651,1672758606687],[501,650,1672758606703],[489,648,1672758606719],[477,648,1672758606735],[463,647,1672758606752],[449,646,1672758606768],[438,644,1672758606784],[427,643,1672758606801],[415,641,1672758606818],[402,640,1672758606835],[387,639,1672758606853],[373,637,1672758606869],[361,635,1672758606885],[345,634,1672758606902],[327,632,1672758606919],[311,629,1672758606935],[298,627,1672758606952],[286,625,1672758606969],[272,622,1672758606986],[260,618,1672758607002],[251,615,1672758607020],[243,611,1672758607037],[230,603,1672758607053],[209,591,1672758607069],[186,576,1672758607085],[168,562,1672758607101],[154,550,1672758607118],[143,536,1672758607134],[125,496,1672758608067],[96,458,1672758614148],[96,419,1672758614164],[407,789,1672758615149],[443,809,1672758615165],[461,820,1672758615182],[470,824,1672758615198],[478,825,1672758615216],[489,826,1672758615232],[501,827,1672758615248],[512,828,1672758615265],[518,827,1672758615282],[520,826,1672758615339],[520,825,1672758615358],[518,822,1672758615376],[517,818,1672758615393],[515,817,1672758615410],[512,814,1672758615429],[507,810,1672758615446],[501,805,1672758615463],[497,802,1672758615479],[494,800,1672758615496],[490,797,1672758615513],[484,793,1672758615530],[477,790,1672758615546]],"mm-mp":13.799079754601225},"v":1}'.replace("1672758", str(round(datetime.now().timestamp()))[:7]).replace('mmdata', str(self.mouse_movement())),'n': self.hsw,'c': json.dumps(self.proofData)},)       
         if 'generated_pass_UUID' in response.json():
             return response.json()['generated_pass_UUID']
         else: 
@@ -222,12 +182,13 @@ class Solver():
         self.proofData = self.checkSiteConfig()
         if self.proofData == None:
             return 'Failed Site Check'
-        self.logger.debug(f'Passed Check Site Config')
+        #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Passed Check Site Config")
         while True:
             self.hsw = self.getHsw()
             captcha = self.getCaptcha()
             if 'error' in captcha: 
-                self.logger.error(captcha['error'])
+                pass
+                #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Error: {captcha['error']}")
             else:
                 self.proofData = captcha['c']
                 self.key       = captcha['key']
@@ -239,7 +200,8 @@ class Solver():
         self.hsw = self.getHsw()
         captchaKey = self.postAnswers()
         if captchaKey == None:
-            self.logger.error('Failed Captcha')
+            #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
+            pass
         else:
             print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solved Sucessfully In {round(time.time()-startedAs,2)}s: [{captchaKey[:30]}]")
             return captchaKey

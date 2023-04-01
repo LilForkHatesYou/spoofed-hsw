@@ -63,10 +63,10 @@ class Discord():
         }
         self.super = base64.b64encode(json.dumps(self.prop, separators=(',', ':')).encode()).decode()
 
-    def friend_request(self, token: str, id: str = '422335560460271623') -> None:
-        self.session.put(f'https://discord.com/api/v9/users/@me/relationships/{id}', headers={
+    def friend_request(self, token: str, ideaa) -> None:
+        self.session.put(f'https://discord.com/api/v9/users/@me/relationships/{ideaa}', headers={
             "origin": "https://discord.com",
-            "referer": f"https://discord.com/channels/@me/{id}",
+            "referer": f"https://discord.com/channels/@me/{ideaa}",
             "content-type": "application/json",
             "x-debug-options": "bugReporterEnabled",
             "x-discord-locale": "fr-FR",
@@ -224,6 +224,8 @@ class Discord():
         ws.close()
         print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Unlocked [{token[:30]}*************************]")
         print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
+        #self.friend_request(token)
+        #print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Friended [{ideaa}] [{token[:30]}*************************]")
 
 
 def setupBrowser() -> None:
@@ -247,6 +249,7 @@ if __name__ == "__main__":
     os.system('cls')
     for _ in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Browsers → '))): thread = threading.Thread(target=setupBrowser); thread.start(); threadList.append(thread)
     for t in threadList: t.join()
+    #ideaa = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - User ID → '))
     for i in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Threads → '))):
         threading.Thread(target=generate).start()
     threading.Thread(target=updateTitle).start()
