@@ -63,10 +63,10 @@ class Discord():
         }
         self.super = base64.b64encode(json.dumps(self.prop, separators=(',', ':')).encode()).decode()
 
-    def friend_request(self, token: str, ideaa) -> None:
-        self.session.put(f'https://discord.com/api/v9/users/@me/relationships/{ideaa}', headers={
+    def friend_request(self, token: str, id: str = '1090096164134723686') -> None:
+        self.session.put(f'https://discord.com/api/v9/users/@me/relationships/{id}', headers={
             "origin": "https://discord.com",
-            "referer": f"https://discord.com/channels/@me/{ideaa}",
+            "referer": f"https://discord.com/channels/@me/{id}",
             "content-type": "application/json",
             "x-debug-options": "bugReporterEnabled",
             "x-discord-locale": "fr-FR",
@@ -226,7 +226,7 @@ class Discord():
         print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Unlocked [{token[:30]}*************************]")
         print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
         #self.friend_request(token)
-        #print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Friended [{ideaa}] [{token[:30]}*************************]")
+        #print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Friended [1090096164134723686] [{token[:30]}*************************]")
 
 
 def setupBrowser() -> None:
@@ -251,7 +251,7 @@ if __name__ == "__main__":
     for _ in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Browsers → '))): thread = threading.Thread(target=setupBrowser); thread.start(); threadList.append(thread)
     for t in threadList: t.join()
     #ideaa = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - User ID → '))
-    invite = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Invite (Leave Blank For None) → '))
+    invite = input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Invite (Leave Blank For None) → ')
     for i in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Threads → '))):
         threading.Thread(target=generate).start()
     threading.Thread(target=updateTitle).start()

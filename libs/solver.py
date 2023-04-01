@@ -118,7 +118,6 @@ class Browser():
                 except Exception:
                     pass
         print(f"({Fore.MAGENTA}${Fore.RESET}) - Grabbed/Spoofed Hsw")
-        #Output.good("Grabbed HSW")
 
 class Solver():
     def __init__(self, siteKey:str, siteUrl:str, browser:Browser,session:tls_client.Session, debug:bool=False) -> None:
