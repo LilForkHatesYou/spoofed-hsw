@@ -63,10 +63,10 @@ class Discord():
         }
         self.super = base64.b64encode(json.dumps(self.prop, separators=(',', ':')).encode()).decode()
 
-    def friend_request(self, token: str, id: str = '1090096164134723686') -> None:
-        self.session.put(f'https://discord.com/api/v9/users/@me/relationships/{id}', headers={
+    def friend_request(self, token: str, ideaa) -> None:
+        self.session.put(f'https://discord.com/api/v9/users/@me/relationships/{ideaa}', headers={
             "origin": "https://discord.com",
-            "referer": f"https://discord.com/channels/@me/{id}",
+            "referer": f"https://discord.com/channels/@me/{ideaa}",
             "content-type": "application/json",
             "x-debug-options": "bugReporterEnabled",
             "x-discord-locale": "fr-FR",
@@ -126,9 +126,9 @@ class Discord():
             json={
                 'consent': True,
                 'fingerprint': fingerprint,
+                'invite': invite,
                 'username': random.choice(names),
-                'captcha_key': captchaKey,
-                'invite': invite
+                'captcha_key': captchaKey
             }
         )
         if not 'token' in response.json():
@@ -225,8 +225,8 @@ class Discord():
         ws.close()
         print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Unlocked [{token[:30]}*************************]")
         print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
-        #self.friend_request(token)
-        #print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Friended [1090096164134723686] [{token[:30]}*************************]")
+        #self.friend_request(token, ideaa)
+        #print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Friended [{ideaa}] [{token[:30]}*************************]")
 
 
 def setupBrowser() -> None:
