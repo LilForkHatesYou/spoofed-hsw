@@ -6,7 +6,7 @@ def spam():
         ja = random.choice(open('tokens.txt', "r", encoding="utf-8").read().splitlines())
         balls = str(round(time.time()))
         data = {
-            "content": f"{message} | Sent at: <t:{balls}:R>",
+            "content": f"{message} | Sent: <t:{balls}:R>",
             "tts": False
         }
         json_payload = json.dumps(data).encode('utf-8')
