@@ -1,7 +1,7 @@
 import tls_client, json, websocket, random, base64, threading, re, os, time, requests, httpx
 from colorama import Fore, Style
 from datetime import timedelta
-from libs.solver import Solver, Browser
+from libss.solver import Solver, Browser
 
 config = json.loads(open('config.json', 'r').read())
 names = open('input/names.txt', "r", encoding="utf-8").read().splitlines()
@@ -295,7 +295,7 @@ def generate() -> None:
             discord = Discord()
             discord.generate()
         except Exception as e:
-            #print(f"({Fore.RED}-{Style.RESET_ALL}) - Error [{e}")
+            print(f"({Fore.RED}-{Style.RESET_ALL}) - Error [{e}")
             pass
 
 if __name__ == "__main__":
@@ -309,5 +309,3 @@ if __name__ == "__main__":
     for i in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Threads → '))):
         threading.Thread(target=generate).start()
     threading.Thread(target=updateTitle).start()
-
-    
