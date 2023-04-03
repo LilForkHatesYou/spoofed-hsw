@@ -2,7 +2,7 @@ import tls_client, json, websocket, random, base64, threading, re, os, time, req
 from colorama import Fore, Style
 from datetime import timedelta
 from libss.solver import Solver, Browser
-
+import traceback
 config = json.loads(open('config.json', 'r').read())
 names = open('input/names.txt', "r", encoding="utf-8").read().splitlines()
 proxies = open('input/proxies.txt', "r", encoding="utf-8").read().splitlines()
@@ -295,6 +295,7 @@ def generate() -> None:
             discord = Discord()
             discord.generate()
         except Exception as e:
+            traceback.print_exc()
             print(f"({Fore.RED}-{Style.RESET_ALL}) - Error [{e}")
             pass
 

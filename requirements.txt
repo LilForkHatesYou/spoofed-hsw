@@ -1,0 +1,7 @@
+numpy
+tls_client
+websocket-client
+requests
+playwright
+httpx
+msvc-runtime
