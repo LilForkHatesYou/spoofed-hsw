@@ -296,7 +296,7 @@ def generate() -> None:
             discord.generate()
         except Exception as e:
             traceback.print_exc()
-            print(f"({Fore.RED}-{Style.RESET_ALL}) - Error [{e}")
+            #print(f"({Fore.RED}-{Style.RESET_ALL}) - Error [{e}")
             pass
 
 if __name__ == "__main__":

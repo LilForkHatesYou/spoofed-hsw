@@ -95,7 +95,7 @@ class Browser():
 
 
     async def gotoDiscord(self) -> None:
-        await self.page.goto('https://accounts.hcaptcha.com/demo?sitekey=4c672d35-0701-42b2-88c3-78380b0db560')
+        await self.page.goto('https://discord.com/')
         await self.page.wait_for_load_state('domcontentloaded')
     
     async def getIframHsw(self) -> None:
@@ -166,11 +166,12 @@ class Solver():
                     imgB64 = {str(i): base64.b64encode(requests.get(str(img["datapoint_uri"]), headers=self.client.headers).content).decode('utf-8') for i, img in enumerate(self.taskList)}
                     task = requests.post(f'https://{__CONFIG__["captcha-type"]}.nocaptchaai.com/solve', headers={'Content-type': 'application/json','apikey': self.apiKey},json={'images': imgB64,'target': self.question,'method': 'hcaptcha_base64','sitekey': self.siteKey,'site': self.siteUrl})
                     self.solArray = task.json()['solution']
-                    print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solution: {self.solArray} - {round(time.time()-start,2)}s")
+                    #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solution: {self.solArray} - {round(time.time()-start,2)}s")
                     resp = [i in self.solArray for i in range(len(self.taskList))]
                     return {task['task_key']: str(resp).lower() for task, resp in zip(self.taskList, resp)}
                 except Exception as e:
-                    print(e)
+                    #print(e)
+                    pass
 
     def ai(self) -> dict:
         temp_tasks = []
@@ -197,20 +198,20 @@ class Solver():
         self.proofData = self.checkSiteConfig()
         if self.proofData == None:
             return 'Failed Site Check'
-        print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Passed Check Site Config")
+        #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Passed Check Site Config")
         while True:
             self.hsw = self.getHsw()
             captcha = self.getCaptcha()
             if 'error' in captcha: 
                 pass
-                print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Error: {captcha['error']}")
+                #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Error: {captcha['error']}")
             else:
                 self.proofData = captcha['c']
                 self.key       = captcha['key']
                 self.taskList  = captcha['tasklist']
                 self.question  = captcha['requester_question']['en']
                 break
-        print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solving: {self.question}")
+        #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solving: {self.question}")
         if ai == True:
             self.solution = self.ai()
         else:
@@ -218,7 +219,7 @@ class Solver():
         self.hsw = self.getHsw()
         captchaKey = self.postAnswers()
         if captchaKey == None:
-            print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
+            #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
             pass
         else:
             print(f"({Fore.LIGHTBLACK_EX}#{Fore.RESET}) - Solved [{round(time.time()-startedAs,2)}s]: [{captchaKey[:42]}]")
