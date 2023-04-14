@@ -1,4 +1,4 @@
-import tls_client, json, asyncio, base64, threading, re, json, time, requests, numpy as np, random
+import tls_client, json, asyncio, base64, threading, re, json, time, requests, numpy as np, random, string
 from colorama import Fore, Style
 from playwright.async_api import async_playwright
 from datetime import datetime
@@ -97,6 +97,13 @@ class Browser():
     async def gotoDiscord(self) -> None:
         await self.page.goto('https://discord.com/')
         await self.page.wait_for_load_state('domcontentloaded')
+        await self.page.click('[class *= "gtm-click-class-open-button"]')
+        await self.page.type('[class *= "username"]', ''.join(random.choice(string.ascii_letters) for _ in range(15)))
+        try:
+            await self.page.click("[class *= 'checkbox']", timeout=100)
+        except Exception:
+            pass
+        await self.page.click('[class *= "gtm-click-class-register-button"]')
     
     async def getIframHsw(self) -> None:
         for frame in self.page.frames:
