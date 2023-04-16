@@ -68,11 +68,19 @@ class Anty():
     def startBrowser(self, profile_id:str):
         response = self.session.get(f"http://localhost:3001/v1.0/browser_profiles/{profile_id}/start?automation=1").json()
         return response['automation']
+    def deleteBrowser(self, profile_id:str):
+        response = self.session.delete(f"https://anty-api.com/browser_profiles/{profile_id}")
+        return response
 
 class Browser():
     def __init__(self) -> None:
         self.lock = threading.Lock()
         self.loop = asyncio.new_event_loop()
+        self.first_time = True
+        self.refresh_iter = 0
+        self.anty = Anty()
+        self.anty.login()
+        self.browser_id = self.anty.create_profile_and_send_id()
     
     def setup(self):
         self.loop.run_until_complete(self.main())
@@ -127,7 +135,29 @@ class Browser():
                 except Exception:
                     pass
         print(f"({Fore.MAGENTA}${Fore.RESET}) - Grabbed/Spoofed Hsw")
+        if self.first_time:
+            asyncio.create_task(self.loopRefresh())
 
+    async def loopRefresh(self):
+        self.first_time = False
+        while True:
+            await asyncio.sleep(90)
+            await self.refresh()
+            
+    async def refresh(self):
+        try:
+            await self.page.close()
+            self.anty.deleteBrowser(self.browser_id)
+            self.browser_id = None
+            await self.main()
+            print(f"({Fore.MAGENTA}${Fore.RESET}) - Refreshed Browser")
+            await self.gotoDiscord()
+            print(f"({Fore.MAGENTA}${Fore.RESET}) - Refreshed Discord")
+            await self.getIframHsw()
+            print(f"({Fore.MAGENTA}${Fore.RESET}) - Refreshed Iframe")
+        except Exception as e:
+            print(e)
+            #traceback.print_exc()
 class Solver():
     def __init__(self, siteKey:str, siteUrl:str, browser:Browser,session:tls_client.Session, debug:bool=False) -> None:
         self.client =  session
