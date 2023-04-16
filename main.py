@@ -295,16 +295,21 @@ def generate() -> None:
             discord = Discord()
             discord.generate()
         except Exception as e:
-            traceback.print_exc()
+            #traceback.print_exc()
             #print(f"({Fore.RED}-{Style.RESET_ALL}) - Error [{e}")
             pass
 
 if __name__ == "__main__":
     os.system('cls')
-    for _ in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Browsers → '))): thread = threading.Thread(target=setupBrowser); thread.start(); threadList.append(thread)
-    for t in threadList: t.join()
+    # for _ in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Browsers → '))):
+    #     thread = threading.Thread(target=setupBrowser)
+    #     thread.start()
+    #     threadList.append(thread)
+    # for t in threadList:
+    #     t.join()
+    setupBrowser()
     invite = input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Invite (Leave Blank For None) → ')
-    #ideaa = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - User ID → '))
+    # ideaa = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - User ID → '))
     #channel = int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Channel ID → '))
     #message = input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Message → ')
     for i in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Threads → '))):
