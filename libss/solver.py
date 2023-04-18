@@ -39,8 +39,8 @@ class Anty():
             },
             "webglInfo": {
                 "mode": "manual",
-                "vendor": "Google Inc. (NVIDIA Corporation)",
-                "renderer": "ANGLE (Intel(R) UHD Graphics 600 Direct3D11 vs_5_0 ps_5_0)"
+                "vendor": "Google Inc. (NVIDIA)",
+                "renderer": "ANGLE (AMD, AMD Radeon(TM) Vega 8 Graphics Direct3D11 vs_5_0 ps_5_0, D3D11-27.20.1028.1)"
             },
             "geolocation": {
                 "mode": "auto",
@@ -92,14 +92,13 @@ class Browser():
             return self.loop.run_until_complete(self.frame.evaluate("hsw('" + rqTkn + "')"))
     
     async def main(self) -> None:
-        anty = Anty()
-        anty.login()
-        idd = anty.create_profile_and_send_id()
-        browser = anty.startBrowser(idd)
+        if self.browser_id is None:
+            self.browser_id = self.anty.create_profile_and_send_id()
+        browser = self.anty.startBrowser(self.browser_id)
         playwright = await async_playwright().start()
         self.browser = await playwright.chromium.connect_over_cdp(f"ws://127.0.0.1:{browser['port']}{browser['wsEndpoint']}")
         self.context = self.browser.contexts[0]
-        self.page = await self.context.new_page()
+        self.page = self.context.pages[0]
 
 
     async def gotoDiscord(self) -> None:
@@ -137,7 +136,7 @@ class Browser():
         print(f"({Fore.MAGENTA}${Fore.RESET}) - Grabbed/Spoofed Hsw")
         if self.first_time:
             asyncio.create_task(self.loopRefresh())
-
+    
     async def loopRefresh(self):
         self.first_time = False
         while True:
@@ -157,7 +156,6 @@ class Browser():
             print(f"({Fore.MAGENTA}${Fore.RESET}) - Refreshed Iframe")
         except Exception as e:
             print(e)
-            #traceback.print_exc()
 class Solver():
     def __init__(self, siteKey:str, siteUrl:str, browser:Browser,session:tls_client.Session, debug:bool=False) -> None:
         self.client =  session
