@@ -40,7 +40,8 @@ class Anty():
             "webglInfo": {
                 "mode": "manual",
                 "vendor": "Google Inc. (NVIDIA)",
-                "renderer": "ANGLE (AMD, AMD Radeon(TM) Vega 8 Graphics Direct3D11 vs_5_0 ps_5_0, D3D11-27.20.1028.1)"
+                "renderer": "ANGLE (AMD, AMD Radeon(TM) R3 Graphics Direct3D11 vs_5_0 ps_5_0, D3D11-26.20.12036.11001)"
+                #"renderer": "ANGLE (AMD, AMD Radeon(TM) Vega 8 Graphics Direct3D11 vs_5_0 ps_5_0, D3D11-27.20.1028.1)"
             },
             "geolocation": {
                 "mode": "auto",
