@@ -227,7 +227,8 @@ class Discord():
             print(f"({Fore.RED}-{Style.RESET_ALL}) - Locked [{token[:30]}*************************]")
             return
         total += 1
-        self.session.proxies = {"http": None, "https": None}
+        self.session.proxies = {"http": self.proxy,"https": self.proxy}
+        #self.session.proxies = {"http": None, "https": None}
         ws = websocket.WebSocket()
         ws.connect('wss://gateway.discord.gg/?encoding=json&v=9')
         ws.send(json.dumps({
