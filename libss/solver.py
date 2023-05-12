@@ -47,7 +47,7 @@ class Solver():
         try:
             start = time.time()
             imgB64 = {str(i): base64.b64encode(requests.get(str(img["datapoint_uri"]), headers=self.client.headers).content).decode('utf-8') for i, img in enumerate(self.taskList)}
-            task = requests.post(f'https://pro.nocaptchaai.com/solve', headers={'Content-type': 'application/json','apikey': 'lilfork-0393443a-eb8c-fd7d-ddc1-395f86e46ebe'},json={'images': imgB64,'target': self.question,'method': 'hcaptcha_base64','sitekey': self.siteKey,'site': self.siteUrl})
+            task = requests.post(f'https://pro.nocaptchaai.com/solve', headers={'Content-type': 'application/json','apikey': 'lilfork-3741290e-8fff-3e94-f371-cf9ce642a6eb'},json={'images': imgB64,'target': self.question,'method': 'hcaptcha_base64','sitekey': self.siteKey,'site': self.siteUrl})
             self.solArray = task.json()['solution']
             print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solution: {self.solArray} - {round(time.time()-start,2)}s")
             resp = [i in self.solArray for i in range(len(self.taskList))]
@@ -87,19 +87,19 @@ class Solver():
         captcha = self.getCaptcha()
         if 'error' in captcha: 
             pass
-            print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Error: {captcha['error']}")
+            #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Error: {captcha['error']}")
         else:
             self.proofData = captcha['c']
             self.key       = captcha['key']
             self.taskList  = captcha['tasklist']
             self.question  = captcha['requester_question']['en']
-        print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solving: {self.question}")
+        #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solving: {self.question}")
         #self.solution = self.ai()
         self.solution = self.predict()
         self.hsw = self.getHsw()
         captchaKey = self.postAnswers()
         if captchaKey == None:
-            print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
+            #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
             pass
         else:
             print(f"({Fore.LIGHTBLACK_EX}#{Fore.RESET}) - Solved [{round(time.time()-startedAs,2)}s]: [{captchaKey[:42]}]")

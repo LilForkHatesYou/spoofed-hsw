@@ -1,11 +1,9 @@
 import tls_client, json, websocket, random, base64, threading, re, os, time, requests, httpx
 from colorama import Fore, Style
 from datetime import timedelta
-# from libss.solver import Solver, Browser
 from libss.solver import Solver
 import traceback
 
-config = json.loads(open('config.json', 'r').read())
 names = open('input/names.txt', "r", encoding="utf-8").read().splitlines()
 proxies = open('input/proxies.txt', "r", encoding="utf-8").read().splitlines()
 proxy_pool = []
@@ -173,8 +171,6 @@ class Discord():
             print(f"({Fore.RED}-{Style.RESET_ALL}) - Locked [{token[:30]}*************************]")
             return
         total += 1
-        self.session.proxies = {"http": self.proxy, "https": self.proxy}
-        # self.session.proxies = {"http": None, "https": None}
         ws = websocket.WebSocket()
         ws.connect('wss://gateway.discord.gg/?encoding=json&v=9')
         ws.send(json.dumps({
@@ -212,7 +208,7 @@ class Discord():
                 [f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])),
             'rb').read()).decode('utf-8')}
         added += "Avatar, "
-        response = self.session.patch('https://discord.com/api/v9/users/@me', json=json_data)
+        response = self.session.patch('https://discord.com/api/v9/users/@me', json=json_data, proxy={"http": None, "https": None})
         if response.status_code == 200:
             added += "BirthDate, "
         response = self.session.post('https://discord.com/api/v9/hypesquad/online',
@@ -227,13 +223,7 @@ class Discord():
         open('tokens.txt', 'a').write(f'{token}\n')
         ws.close()
         print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Unlocked [{token[:30]}*************************]")
-        print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
-
-
-# def setupBrowser() -> None:
-#    browser = Browser()
-#    browser.setup()
-#    browserList.append(browser)
+        #print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
 
 def generate() -> None:
     global total
@@ -251,7 +241,6 @@ def generate() -> None:
 
 if __name__ == "__main__":
     os.system('cls')
-    # setupBrowser()
     invite = input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Invite (Leave Blank For None) → ')
     for i in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Threads → '))):
         threading.Thread(target=generate).start()
