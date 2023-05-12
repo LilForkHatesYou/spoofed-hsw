@@ -227,19 +227,28 @@ class Solver:
         captcha = self.getCaptcha()
         if 'error' in captcha:
             pass
-            print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Error: {captcha['error']}")
+            #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Error: {captcha['error']}")
         else:
             self.proofData = captcha['c']
+<<<<<<< Updated upstream
             self.key = captcha['key']
             self.taskList = captcha['tasklist']
             self.question = captcha['requester_question']['en']
         print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solving: {self.question}")
         # self.solution = self.ai()
         self.solution = self.predict()
+=======
+            self.key       = captcha['key']
+            self.taskList  = captcha['tasklist']
+            self.question  = captcha['requester_question']['en']
+        #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Solving: {self.question}")
+        self.solution = self.ai()
+        #self.solution = self.predict()
+>>>>>>> Stashed changes
         self.hsw = self.getHsw()
         captchaKey = self.postAnswers()
         if captchaKey == None:
-            print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
+            #print(f"({Fore.LIGHTBLUE_EX}!{Fore.RESET}) - Failed Captcha")
             pass
         else:
             print(
