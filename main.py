@@ -227,7 +227,7 @@ class Discord():
         open('tokens.txt', 'a').write(f'{token}\n')
         ws.close()
         print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Unlocked [{token[:30]}*************************]")
-        #print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
+        print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
 
 
 # def setupBrowser() -> None:
