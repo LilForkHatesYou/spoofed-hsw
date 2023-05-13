@@ -1,8 +1,19 @@
-import tls_client, json, websocket, random, base64, threading, re, os, time, requests, httpx
-from colorama import Fore, Style
+import sys
 from datetime import timedelta
+
+import base64
+import json
+import os
+import random
+import re
+import requests
+import threading
+import time
+import tls_client
+import websocket
+from colorama import Fore, Style
+
 from libss.solver import Solver
-import traceback
 
 names = open('input/names.txt', "r", encoding="utf-8").read().splitlines()
 proxies = open('input/proxies.txt', "r", encoding="utf-8").read().splitlines()
@@ -23,8 +34,8 @@ def updateTitle():
             elapsed = str(delta).split(".")[0]
             unlocked_rate = round(unlocked / total * 100, 2)
             upm = round(unlocked / ((time.time() - genStartedAs) / 60))
-            os.system(
-                f'title UNLOCKED: {unlocked} │ LOCKED: {locked} │ Rate: {unlocked_rate}% │ UPM: {upm} │ Elapsed: {elapsed}')
+            sys.stdout.write(
+                f'\x1b]2;UNLOCKED: {unlocked} │ LOCKED: {locked} │ Rate: {unlocked_rate}% │ UPM: {upm} │ Elapsed: {elapsed}\x07')
         except Exception:
             pass
         time.sleep(1)
