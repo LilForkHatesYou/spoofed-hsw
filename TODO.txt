@@ -1,13 +1,12 @@
 const se = new WebSocket("ws://127.0.0.1:4968");
 
 se.onmessage = async (message) => {
-    try {
-        const payload = message.data;
-        window.focus();
-        let token = "";
-        token = await hsw(payload);
-        se.send(JSON.stringify(token));
-    } catch (ex) {
+    const payload = message.data;
+    window.focus();
+
+    let token = "";
     
-    }
+    token = await hsw(payload);
+    console.log(token)
+    se.send(JSON.stringify(token));
 };
