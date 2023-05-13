@@ -106,7 +106,7 @@ warnings.filterwarnings("ignore")
 
 
 threads = []
-for i in range(8):
+for i in range(6):
     br = BrowserHSWEngine()
     threads.append(threading.Thread(target=br.setup))
 for x in threads:
