@@ -1,3 +1,5 @@
+import sys
+
 import tls_client, json, websocket, random, base64, threading, re, os, time, requests, httpx
 from colorama import Fore, Style
 from datetime import timedelta
@@ -23,8 +25,9 @@ def updateTitle():
             elapsed = str(delta).split(".")[0]
             unlocked_rate = round(unlocked / total * 100, 2)
             upm = round(unlocked / ((time.time() - genStartedAs) / 60))
-            os.system(
-                f'title UNLOCKED: {unlocked} │ LOCKED: {locked} │ Rate: {unlocked_rate}% │ UPM: {upm} │ Elapsed: {elapsed}')
+            sys.stdout.write(
+                f'\x1b]2;UNLOCKED: {unlocked} │ LOCKED: {locked} │ Rate: {unlocked_rate}% │ UPM: {upm} │ Elapsed: {elapsed}\x07')
+            sys.stdout.flush()
         except Exception:
             pass
         time.sleep(1)
@@ -184,7 +187,7 @@ class Discord():
                     "since": 0,
                     "activities": [
                         {
-                            "name": "to Lil Fork",
+                            "name": "to DortGen",
                             "type": 2
                         }
                     ],

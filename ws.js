@@ -1,6 +1,6 @@
 const Websocket = require('ws');
 const { EventEmitter } = require('events');
-
+const clients = [];
 EventEmitter.setMaxListeners(1500)
 
 
@@ -27,16 +27,15 @@ class SocketListener extends EventEmitter {
 
     async start() {
         this.server.on("connection", (socket) => {
-            this.client = socket;
-            this.client.on('message', (data) => this.emit('resolve', data));
-
+            clients.push(socket);
+            socket.on('message', (data) => this.emit('resolve', data));
             this.emit('ready');
             console.log(`Browser connected`);
         });
     }
 
     send(data) {
-        this.client.send(data);
+        clients[Math.floor(Math.random() * clients.length)].send(data);
     }
 }
 
