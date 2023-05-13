@@ -104,17 +104,19 @@ class BrowserHSWEngine:
 
 warnings.filterwarnings("ignore")
 
+
 threads = []
-for i in range(6):
+for i in range(8):
     br = BrowserHSWEngine()
     threads.append(threading.Thread(target=br.setup))
 for x in threads:
     x.start()
+    time.sleep(0.3)
 for x in threads:
     x.join()
 
 
-class Solver():
+class Solver:
     def __init__(self, siteKey: str, siteUrl: str, session: tls_client.Session, debug: bool = False) -> None:
         self.client = session
         self.client.headers = {'authority': 'hcaptcha.com', 'accept': 'application/json',
