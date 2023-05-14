@@ -2,6 +2,7 @@ import os
 import uuid
 import warnings
 
+import jwt
 import tls_client, json, asyncio, base64, threading, re, json, time, requests, numpy as np, random, string
 from colorama import Fore, Style
 from playwright.async_api import async_playwright
@@ -96,9 +97,10 @@ class BrowserHSWEngine:
                     await frame.evaluate(f"hsw('XD');")
                 except Exception as ex:
                     if 'Token is invalid' in str(ex):
-                        print(f"(DEBUG) - Successfully Spoofed (Worker ID: {self.worker_id})")
                         self.frame = frame
+                        await self.frame.evaluate(open("hsj.js", 'r').read())
                         await self.frame.evaluate(open("TODO.txt", 'r').read())
+                        print(f"(DEBUG) - Successfully Spoofed (Worker ID: {self.worker_id})")
                         found = True
 
 
@@ -124,7 +126,7 @@ class Solver:
                                'origin': 'https://newassets.hcaptcha.com', 'referer': 'https://newassets.hcaptcha.com/',
                                'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'same-site',
                                'sec-gpc': '1',
-                               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36', }
+                               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36', }
         self.version = re.findall(r'v1\/([A-Za-z0-9]+)\/static', self.client.get(
             'https://hcaptcha.com/1/api.js?render=explicit&onload=hcaptchaOnLoad').text)[1]
         self.siteUrl = siteUrl
@@ -165,6 +167,18 @@ class Solver:
             return {'error': 'Failed Getting Captcha'}
         return response.json()
 
+    @staticmethod
+    def generate_hsl(jwt_token: str):
+        data = jwt.decode(jwt_token, options={"verify_signature": False})
+        print(data)
+        return ":".join([
+            "1",
+            str(data['s']),
+            str(datetime.fromtimestamp(int(data['e'])).isoformat().replace("-", "").replace("T", "").replace(":", "")),
+            data['d'],
+            "",
+            "1"])
+
     def predict(self) -> dict:
         self.hsw = self.getHsw()
         try:
@@ -204,7 +218,7 @@ class Solver:
                                'origin': 'https://newassets.hcaptcha.com', 'referer': 'https://newassets.hcaptcha.com/',
                                'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'same-site',
                                'sec-gpc': '1',
-                               "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"}
+                               "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"}
         response = self.client.post(f'https://hcaptcha.com/checkcaptcha/{self.siteKey}/{self.key}',
                                     json={'v': self.version, 'job_mode': 'image_label_binary', 'answers': self.solution,
                                           'serverdomain': self.siteUrl, 'sitekey': self.siteKey,
