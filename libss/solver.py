@@ -63,7 +63,7 @@ class BrowserHSWEngine:
         json = {
             "c": {
                 "type": "hsw",
-                "req": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJmIjowLCJzIjoxNiwidCI6InciLCJkIjoiTU5Sb2podFBGVWwyNmNjOFRXMy9yM0JlSGI0N241ZmUvQUxWNjdRUHNEUVNHMWdtVDRuY1paTkRHZ0V4MkNrbHdGbFdNZk4yb3ZPTjdwY3B4M1pRMStZblc3NXYzMnZ6eUsxMUJDdkY5QkYzczZiVnBValFQRVpRS2JRSmt6YWR6UGRUWGdYU0pabnNNVVZvS2hSNzl1RUZQRVNaaWhoS0x5VUNVcUlvMFBqMk1yeW0vS25kNHV1MnBFcz1pQnJpZzlEWDV1UWxLdU9mIiwibCI6Imh0dHBzOi8vbmV3YXNzZXRzLmhjYXB0Y2hhLmNvbS9jL2NmMTJlYjYiLCJlIjoxNjg0MDAyNzMzLCJuIjoiaHN3IiwiYyI6MTAwMH0.wNtv8enddxFqzJ-7PsU-aG6qOEz436lnaYuVWJd0IGzOj6_YWAjECGAY-iD1s9Qwxt4CWAG2EsZRDFzA3AHhUrJIs9_s38VCF0hIVLW-JmEl5d914VIgny5G6uSS27asqI8iEaF9chroK7ncRLxzFzikHqmwI8UUagtd_T6q6XK-mn5QugXiSiZWwenp-p-fP7RnFSaVHlcDuZp4qg-fYacKgcdaWd4-ubGI73lO1UB5-V30Div4zkjM8Ew7voZuKWKcTxcpk8j4z3kl5SlEki-bLdnV1HLeUXOeKj-MAbyHyycubxjhbUmH-c05UdBM766pvhOXvertbxYC1GfDfQ"
+                "req": "XD"
             }
         }
         await route.fulfill(status=200, response=response, json=json)
@@ -98,7 +98,6 @@ class BrowserHSWEngine:
                 except Exception as ex:
                     if 'Token is invalid' in str(ex):
                         self.frame = frame
-                        await self.frame.evaluate(open("hsj.js", 'r').read())
                         await self.frame.evaluate(open("TODO.txt", 'r').read())
                         print(f"(DEBUG) - Successfully Spoofed (Worker ID: {self.worker_id})")
                         found = True

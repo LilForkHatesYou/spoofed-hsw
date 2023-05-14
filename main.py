@@ -17,6 +17,15 @@ threadList = []
 locked, unlocked, total = 0, 0, 0
 
 
+class NetNutFunny(tls_client.Session):
+    def execute_request(self, *args, **kwargs):
+        for _ in range(100):
+            try:
+                return super().execute_request(*args, **kwargs)
+            except Exception as ex:
+                pass
+
+
 def updateTitle():
     genStartedAs = time.time()
     while True:
@@ -48,7 +57,7 @@ class Discord():
         global total
         global locked
         global unlocked
-        self.session = tls_client.Session(
+        self.session = NetNutFunny(
             client_identifier="chrome_111",
             random_tls_extension_order=True,
             h2_settings={"HEADER_TABLE_SIZE": 65536, "MAX_CONCURRENT_STREAMS": 1000, "INITIAL_WINDOW_SIZE": 6291456,
@@ -211,7 +220,8 @@ class Discord():
                 [f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])),
             'rb').read()).decode('utf-8')}
         added += "Avatar, "
-        response = self.session.patch('https://discord.com/api/v9/users/@me', json=json_data, proxy={"http": None, "https": None})
+        response = self.session.patch('https://discord.com/api/v9/users/@me', json=json_data,
+                                      proxy={"http": None, "https": None})
         if response.status_code == 200:
             added += "BirthDate, "
         response = self.session.post('https://discord.com/api/v9/hypesquad/online',
@@ -226,7 +236,8 @@ class Discord():
         open('tokens.txt', 'a').write(f'{token}\n')
         ws.close()
         print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Unlocked [{token[:30]}*************************]")
-        #print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
+        # print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
+
 
 def generate() -> None:
     global total
