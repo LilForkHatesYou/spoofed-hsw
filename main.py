@@ -44,12 +44,9 @@ def update_title():
     gen_started_at = time.time()
     while True:
         try:
-            delta = timedelta(seconds=round(time.time() - gen_started_at))
-            elapsed = str(delta).split(".")[0]
             unlocked_rate = round(unlocked / total * 100, 2)
             upm = round(unlocked / ((time.time() - gen_started_at) / 60))
-            sys.stdout.write(
-                f'\x1b]2;UNLOCKED: {unlocked} │ LOCKED: {locked} │ Rate: {unlocked_rate}% │ UPM: {upm} │ Elapsed: {elapsed}\x07')
+            sys.stdout.write(f'\x1b]2;{unlocked} UNLOCKED │ {locked} LOCKED │ {unlocked_rate}% RATE │ {upm} UPM\x07')
             sys.stdout.flush()
         except Exception:
             pass
@@ -238,7 +235,8 @@ class Discord:
                 [f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])),
             'rb').read()).decode('utf-8')}
         added += "PFP"
-        print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTMAGENTA_EX}UNLOCKED{Fore.LIGHTWHITE_EX} {token}{Fore.RESET}")
+        print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTMAGENTA_EX}UNLOCKED{Fore.LIGHTWHITE_EX} "
+              f"{token.split('.')[0]}{Fore.RESET}")
         response = await self.session.patch('https://discord.com/api/v9/users/@me', json=json_data,
                                             proxy={"http": None, "https": None})
         if response.status_code == 200:
