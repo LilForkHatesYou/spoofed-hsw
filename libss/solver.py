@@ -223,7 +223,7 @@ class Solver:
     @staticmethod
     async def setup():
         tasks = []
-        for i in range(5):
+        for i in range(2):
             tasks.append(asyncio.create_task(Solver.create_browser()))
         for x in tasks:
             await x
