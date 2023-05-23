@@ -15,13 +15,10 @@ import aiomisc
 import requests
 import tls_client
 import websocket
+from colorama import Fore
 
-from libss.solver import Solver
+from solver import Solver
 
-#
-# if __name__ == '__main__':
-#     NewHSW()
-#     while 1: pass
 names = open('input/names.txt', "r", encoding="utf-8").read().splitlines()
 proxies = open('input/proxies.txt', "r", encoding="utf-8").read().splitlines()
 proxy_pool = []
@@ -155,7 +152,7 @@ class Discord:
                                            json={
                                                'consent': True,
                                                'fingerprint': fingerprint,
-                                               "invite": "WjhkfKNj",
+                                               "invite": None,
                                                'username': random.choice(names),
                                                'captcha_key': captcha_key
                                            })
@@ -200,7 +197,8 @@ class Discord:
         if (await self.session.get('https://discord.com/api/v9/users/@me/affinities/users')).status_code != 200:
             total += 1
             locked += 1
-            print(f"[!] Locked: {token}")
+            print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTRED_EX}LOCKED{Fore.LIGHTWHITE_EX} {token.split('.')[0]}"
+                  f"{Fore.RESET}")
             return
         total += 1
         ws = websocket.WebSocket()
@@ -239,24 +237,26 @@ class Discord:
             os.path.join("input/image", random.choice(
                 [f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])),
             'rb').read()).decode('utf-8')}
-        added += "Profile Picture, "
+        added += "PFP"
+        print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTMAGENTA_EX}UNLOCKED{Fore.LIGHTWHITE_EX} {token}{Fore.RESET}")
         response = await self.session.patch('https://discord.com/api/v9/users/@me', json=json_data,
                                             proxy={"http": None, "https": None})
         if response.status_code == 200:
-            added += "Birth date, "
+            added += " | DOB"
         response = await self.session.post('https://discord.com/api/v9/hypesquad/online',
                                            json={'house_id': random.randint(1, 3)})
         if response.status_code == 204:
-            added += "HypeSquad, "
+            added += " | HS"
         bio = random.choice(open('input/bios.txt', 'r', encoding="utf-8").read().splitlines())
         response = await self.session.patch('https://discord.com/api/v9/users/%40me/profile', json={'bio': bio})
         if response.status_code == 200:
-            added += "About Me "
+            added += " | BIO"
         unlocked += 1
         open('tokens.txt', 'a').write(f'{token}\n')
         ws.close()
-        print(f"[!] Unlocked: {token} | {added}")
-
+        token = token.split(".")[0]
+        if added:
+            print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTBLUE_EX}ADDED PROFILE{Fore.LIGHTWHITE_EX} {token} | {added}{Fore.RESET}")
 
 async def generate() -> None:
     while True:
@@ -269,7 +269,7 @@ async def generate() -> None:
 
 async def prepare():
     await Solver.setup()
-    for _ in range(100):
+    for _ in range(20):
         asyncio.create_task(generate())
     await asyncio.sleep(999999)
 

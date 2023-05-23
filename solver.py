@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import hashlib
+import itertools
 import json
 import random
 import re
@@ -17,13 +18,14 @@ import nopecha
 import numpy as np
 import requests
 import tls_client
+from colorama import Fore
 from playwright.async_api import async_playwright
 from redis import Redis
 
 nopecha.api_key = "slx9du0do2_5RZ2F3RL"
 
 database = Redis(host="85.202.203.139", password="jew1339", port=6379, db=8)
-workers: list[typing.Union["BrowserHSWEngine"]] = []
+workers: typing.Union[list["BrowserHSWEngine"], iter] = []
 version = re.findall(r'v1/([A-Za-z0-9]+)/static', httpx.get(
     'https://hcaptcha.com/1/api.js?render=explicit&onload=hcaptchaOnLoad').text)[1]
 
@@ -52,9 +54,10 @@ class Anty:
         self.session.headers.update({'Authorization': f'Bearer {auth_token}'})
 
     def create_profile_and_send_id(self):
+        cpu_count: int = random.randint(4, 96)
         payload = json.dumps({
             "name": "browser",
-            "platform": "linux",
+            "platform": "windows",
             "browserType": "anty",
             "mainWebsite": "none",
             "doNotTrack": 1,
@@ -63,30 +66,31 @@ class Anty:
             },
             "useragent": {
                 "mode": "manual",
-                "value": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+                "value": f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                         f'Chrome/102.0.0.0 Safari/537.36'
             },
             "webrtc": {
-                "mode": "modified"
+                "mode": "off"
             },
             "canvas": {
                 "mode": "noise"
             },
             "webgl": {
-                "mode": "noise"
+                "mode": "real"
             },
             "webglInfo": {
-                "mode": "real"
+                "mode": "software"
             },
             "geolocation": {
                 "mode": "auto",
             },
             "cpu": {
                 "mode": "manual",
-                "value": 8
+                "value": cpu_count - cpu_count % 4
             },
             "memory": {
                 "mode": "manual",
-                "value": 8
+                "value": random.choice([1, 2, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64])
             },
             "timezone": {
                 "mode": "auto",
@@ -121,7 +125,8 @@ class BrowserHSWEngine:
         self.worker_id = uuid.uuid4()
 
     async def main(self) -> None:
-        print(f"(DEBUG) - Starting Browser Spoofer in HSW mode (Worker ID: {self.worker_id})")
+        print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTBLUE_EX}START WORKER{Fore.LIGHTWHITE_EX} "
+              f"{self.worker_id}{Fore.RESET}")
         self.playwright = await async_playwright().start()
         anty = Anty()
         anty_id = anty.create_profile_and_send_id()
@@ -129,41 +134,38 @@ class BrowserHSWEngine:
         self.browser = await self.playwright.chromium.connect_over_cdp(f"ws://127.0.0.1:{anty_browser['port']}{anty_browser['wsEndpoint']})")
         self.context = self.browser.contexts[0]
         self.page = self.context.pages[0]
-        await self.page.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', undefined);
-        """)
-        await self.visit_discord()
+        await self.emulate_input()
         await self.get_hsw_iframe()
 
-    async def pull_hsw(self, rq_token: str):
-        return await self.frame.evaluate(f'hsw("{rq_token}")')
+    async def pull_hsw(self, jwt: str) -> str:
+        return await self.frame.evaluate(f"hsw('{jwt}')")
 
     @staticmethod
-    async def handle(route):
+    async def override_discord_request(route) -> None:
         response = await route.fetch()
-        json = {
+        new_response: dict = {
             "captcha_key": [
                 "captcha-required"
             ],
             "captcha_sitekey": "4c672d35-0701-42b2-88c3-78380b0db560",
             "captcha_service": "hcaptcha"
         }
-        await route.fulfill(status=400, response=response, json=json)
+        await route.fulfill(status=400, response=response, json=new_response)
 
     @staticmethod
-    async def handle2(route):
+    async def override_hcaptcha_request(route) -> None:
         response = await route.fetch()
-        json = {
+        new_response: dict = {
             "c": {
                 "type": "hsw",
                 "req": secrets.token_hex(16)
             }
         }
-        await route.fulfill(status=200, response=response, json=json)
+        await route.fulfill(status=200, response=response, json=new_response)
 
-    async def visit_discord(self) -> None:
-        await self.page.route("https://discord.com/api/v9/auth/register**", self.handle)
-        await self.page.route("https://hcaptcha.com/checksiteconfig**", self.handle2)
+    async def emulate_input(self) -> None:
+        await self.page.route("https://discord.com/api/v9/auth/register**", self.override_discord_request)
+        await self.page.route("https://hcaptcha.com/checksiteconfig**", self.override_hcaptcha_request)
         await self.page.goto('https://discord.com/')
         await self.page.wait_for_load_state('domcontentloaded')
         await self.page.click('[class *= "gtm-click-class-open-button"]')
@@ -175,20 +177,21 @@ class BrowserHSWEngine:
         await self.page.click('[class *= "gtm-click-class-register-button"]')
 
     async def get_hsw_iframe(self) -> None:
-        found = False
+        found: bool = False
         while not found:
-            await self.page.wait_for_timeout(1000)
+            await self.page.wait_for_timeout(500)
             for frame in self.page.frames:
                 try:
                     try:
                         await frame.evaluate('document.querySelector("#checkbox").click()')
                     except Exception:
                         pass
-                    await frame.evaluate(f"hsw('XD');")
+                    await frame.evaluate(f"hsw('{secrets.token_hex(6)}');")
                 except Exception as ex:
                     if 'Token is invalid' in str(ex):
                         self.frame = frame
-                        print(f"(DEBUG) - Successfully Spoofed (Worker ID: {self.worker_id})")
+                        print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTGREEN_EX}WORKER READY "
+                              f"{Fore.LIGHTWHITE_EX}{self.worker_id}")
                         found = True
 
 
@@ -222,14 +225,16 @@ class Solver:
 
     @staticmethod
     async def setup():
+        global workers
         tasks = []
-        for i in range(2):
+        for i in range(4):
             tasks.append(asyncio.create_task(Solver.create_browser()))
         for x in tasks:
             await x
+        workers = itertools.cycle(workers)
 
     async def get_hsw(self) -> str:
-        hsw_dat: str = await random.choice(workers).pull_hsw(self.proof_data['req'])
+        hsw_dat: str = await next(workers).pull_hsw(self.proof_data['req'])
         return hsw_dat
 
     async def check_site_config(self) -> typing.Union[str, None]:
@@ -370,10 +375,10 @@ class Solver:
             self.task_list = captcha['tasklist']
             self.question = captcha['requester_question']['en']
         # self.solution, tiles = await self.sol_redis()
-        self.solution = await self.predict()
+        self.solution = await self.so()
         self.hsw = await self.get_hsw()
         token: str = await self.post_answers()
         if token:
-            print(f"[!] Solved: [{token[:42]}]")
+            print(f"{Fore.LIGHTWHITE_EX}[!] {Fore.LIGHTGREEN_EX}SOLVED{Fore.LIGHTWHITE_EX} {token[-32:]}{Fore.RESET}")
             # await self.update_redis(tiles)
             return token
