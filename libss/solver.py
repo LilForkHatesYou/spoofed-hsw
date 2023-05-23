@@ -4,8 +4,8 @@ import hashlib
 import json
 import random
 import re
+import secrets
 import string
-import threading
 import time
 import typing
 import uuid
@@ -17,7 +17,6 @@ import nopecha
 import numpy as np
 import requests
 import tls_client
-from colorama import Fore
 from playwright.async_api import async_playwright
 from redis import Redis
 
@@ -41,8 +40,77 @@ class Tile(object):
         self.image_index = image_index
 
 
+__CONFIG__ = json.loads(open("config.json").read())
+auth_token = __CONFIG__["anty-token"]
+
+
+class Anty:
+    def __init__(self) -> None:
+        self.session = requests.Session()
+
+    def login(self) -> None:
+        self.session.headers.update({'Authorization': f'Bearer {auth_token}'})
+
+    def create_profile_and_send_id(self):
+        payload = json.dumps({
+            "name": "browser",
+            "platform": "linux",
+            "browserType": "anty",
+            "mainWebsite": "none",
+            "doNotTrack": 1,
+            "ports": {
+                "mode": "real"
+            },
+            "useragent": {
+                "mode": "manual",
+                "value": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+            },
+            "webrtc": {
+                "mode": "modified"
+            },
+            "canvas": {
+                "mode": "noise"
+            },
+            "webgl": {
+                "mode": "noise"
+            },
+            "webglInfo": {
+                "mode": "real"
+            },
+            "geolocation": {
+                "mode": "auto",
+            },
+            "cpu": {
+                "mode": "manual",
+                "value": 8
+            },
+            "memory": {
+                "mode": "manual",
+                "value": 8
+            },
+            "timezone": {
+                "mode": "auto",
+                "value": None
+            },
+            "locale": {
+                "mode": "auto",
+                "value": None
+            }
+        })
+        response = self.session.post('https://anty-api.com/browser_profiles', data=payload,
+                                     headers={'Content-Type': 'application/json',
+                                              'Authorization': f'Bearer {auth_token}'})
+        return response.json()['browserProfileId']
+
+    def start_browser(self, profile_id: str):
+        response = self.session.get(
+            f"http://localhost:3001/v1.0/browser_profiles/{profile_id}/start?automation=1").json()
+        return response['automation']
+
+
 class BrowserHSWEngine:
     def __init__(self) -> None:
+        self.context = None
         self.page = None
         self.agent = None
         self.frame = None
@@ -55,13 +123,14 @@ class BrowserHSWEngine:
     async def main(self) -> None:
         print(f"(DEBUG) - Starting Browser Spoofer in HSW mode (Worker ID: {self.worker_id})")
         self.playwright = await async_playwright().start()
-        self.browser = await self.playwright.chromium.launch(headless=False, args=[])
-        self.page = await self.browser.new_page()
+        anty = Anty()
+        anty_id = anty.create_profile_and_send_id()
+        anty_browser = anty.start_browser(anty_id)
+        self.browser = await self.playwright.chromium.connect_over_cdp(f"ws://127.0.0.1:{anty_browser['port']}{anty_browser['wsEndpoint']})")
+        self.context = self.browser.contexts[0]
+        self.page = self.context.pages[0]
         await self.page.add_init_script("""
-        navigator.webdriver = false
-        Object.defineProperty(navigator, 'webdriver', {
-            get: () => false
-        })
+            Object.defineProperty(navigator, 'webdriver', undefined);
         """)
         await self.visit_discord()
         await self.get_hsw_iframe()
@@ -87,7 +156,7 @@ class BrowserHSWEngine:
         json = {
             "c": {
                 "type": "hsw",
-                "req": "XD"
+                "req": secrets.token_hex(16)
             }
         }
         await route.fulfill(status=200, response=response, json=json)
@@ -95,9 +164,6 @@ class BrowserHSWEngine:
     async def visit_discord(self) -> None:
         await self.page.route("https://discord.com/api/v9/auth/register**", self.handle)
         await self.page.route("https://hcaptcha.com/checksiteconfig**", self.handle2)
-        await self.page.route("https://discord.com/assets/*.svg", lambda route: route.abort())
-        await self.page.route("https://discord.com/assets/*.woff2", lambda route: route.abort())
-        await self.page.route("https://discord.com/assets/*.png", lambda route: route.abort())
         await self.page.goto('https://discord.com/')
         await self.page.wait_for_load_state('domcontentloaded')
         await self.page.click('[class *= "gtm-click-class-open-button"]')
@@ -126,16 +192,6 @@ class BrowserHSWEngine:
                         found = True
 
 
-@aiomisc.threaded_separate
-def sha1(h):
-    return hashlib.sha1(h).hexdigest()
-
-
-@aiomisc.threaded_separate
-def b64(param):
-    return base64.b64encode(param)
-
-
 class Solver:
     def __init__(self, site_key: str, site_url: str, session: tls_client.Session, hsl: bool = False,
                  debug: bool = False) -> None:
@@ -159,7 +215,7 @@ class Solver:
         self.site_key = site_key
 
     @staticmethod
-    async def b():
+    async def create_browser():
         browser = BrowserHSWEngine()
         await browser.main()
         workers.append(browser)
@@ -167,8 +223,8 @@ class Solver:
     @staticmethod
     async def setup():
         tasks = []
-        for i in range(3):
-            tasks.append(asyncio.create_task(Solver.b()))
+        for i in range(5):
+            tasks.append(asyncio.create_task(Solver.create_browser()))
         for x in tasks:
             await x
 

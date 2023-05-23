@@ -8,17 +8,14 @@ import secrets
 import sys
 import threading
 import time
-import traceback
 from datetime import timedelta
 from typing import Union
+
 import aiomisc
-import anyio
-import httpx
 import requests
 import tls_client
-import trio
 import websocket
-from colorama import Fore, Style
+
 from libss.solver import Solver
 
 #
@@ -94,15 +91,19 @@ class Discord:
         self.session = Nigger(
             client_identifier="chrome_111",
             random_tls_extension_order=True,
-            h2_settings={"HEADER_TABLE_SIZE": 65536,"MAX_CONCURRENT_STREAMS": 1000,"INITIAL_WINDOW_SIZE": 6291456,"MAX_HEADER_LIST_SIZE": 262144},
-            h2_settings_order=["HEADER_TABLE_SIZE","MAX_CONCURRENT_STREAMS","INITIAL_WINDOW_SIZE","MAX_HEADER_LIST_SIZE"],
-            supported_signature_algorithms=["ECDSAWithP256AndSHA256","PSSWithSHA256","PKCS1WithSHA256","ECDSAWithP384AndSHA384","PSSWithSHA384","PKCS1WithSHA384","PSSWithSHA512","PKCS1WithSHA512",],
+            h2_settings={"HEADER_TABLE_SIZE": 65536, "MAX_CONCURRENT_STREAMS": 1000, "INITIAL_WINDOW_SIZE": 6291456,
+                         "MAX_HEADER_LIST_SIZE": 262144},
+            h2_settings_order=["HEADER_TABLE_SIZE", "MAX_CONCURRENT_STREAMS", "INITIAL_WINDOW_SIZE",
+                               "MAX_HEADER_LIST_SIZE"],
+            supported_signature_algorithms=["ECDSAWithP256AndSHA256", "PSSWithSHA256", "PKCS1WithSHA256",
+                                            "ECDSAWithP384AndSHA384", "PSSWithSHA384", "PKCS1WithSHA384",
+                                            "PSSWithSHA512", "PKCS1WithSHA512", ],
             supported_versions=["GREASE", "1.3", "1.2"],
             key_share_curves=["GREASE", "X25519"],
             cert_compression_algo="brotli",
-            pseudo_header_order=[":method",":authority",":scheme",":path"],
+            pseudo_header_order=[":method", ":authority", ":scheme", ":path"],
             connection_flow=15663105,
-            header_order=["accept","user-agent","accept-encoding","accept-language"])
+            header_order=["accept", "user-agent", "accept-encoding", "accept-language"])
         self.session.proxies = self.proxy
         self.prop = {
             "os": "Windows",
@@ -154,7 +155,7 @@ class Discord:
                                            json={
                                                'consent': True,
                                                'fingerprint': fingerprint,
-                                               "invite": "removal",
+                                               "invite": "WjhkfKNj",
                                                'username': random.choice(names),
                                                'captcha_key': captcha_key
                                            })
@@ -234,17 +235,17 @@ class Discord:
             }
         }))
         added = ""
-        json_data = {'date_of_birth': '2000-12-19', 'avatar': 'data:image/png;base64,' + base64.b64encode(open(
+        json_data = {'date_of_birth': '2000-12-18', 'avatar': 'data:image/png;base64,' + base64.b64encode(open(
             os.path.join("input/image", random.choice(
                 [f for f in os.listdir("input/image") if f.endswith('.jpg') or f.endswith('.png')])),
             'rb').read()).decode('utf-8')}
         added += "Profile Picture, "
         response = await self.session.patch('https://discord.com/api/v9/users/@me', json=json_data,
-                                      proxy={"http": None, "https": None})
+                                            proxy={"http": None, "https": None})
         if response.status_code == 200:
             added += "Birth date, "
         response = await self.session.post('https://discord.com/api/v9/hypesquad/online',
-                                     json={'house_id': random.randint(1, 3)})
+                                           json={'house_id': random.randint(1, 3)})
         if response.status_code == 204:
             added += "HypeSquad, "
         bio = random.choice(open('input/bios.txt', 'r', encoding="utf-8").read().splitlines())
@@ -268,9 +269,9 @@ async def generate() -> None:
 
 async def prepare():
     await Solver.setup()
-    for _ in range(120):
+    for _ in range(100):
         asyncio.create_task(generate())
-    await asyncio.sleep(22220)
+    await asyncio.sleep(999999)
 
 
 if __name__ == "__main__":
